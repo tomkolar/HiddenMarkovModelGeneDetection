@@ -46,29 +46,36 @@ public:
 
 	// Public Attributes
 	// =============================================
+	struct Gene {
+		int start;
+		int end;
+		bool isTopStrand;
+	};
+
 	int iteration;
 	int numStates;
 	vector<int> stateCounts;
-	vector<int> segmentCounts;
-	HMMProbabilities* probabilities;
-	map<int,vector<pair<int,int>>> segments;
+	int topStrandGeneCount;
+	int bottomStrandGeneCount;
+	vector<Gene*> genes;
+	map<int, map<string, int>> emissionCounts;
 	vector<vector<int>> transitionCounts;
+	HMMProbabilities* probabilities;
 
 	// Public Methods
 	// =============================================
 
-	// string resultsWithoutSegments()
+	// string resultsWithoutGenes()
 	//  Purpose:
 	//		Returns a string representing the viterbi results for 
 	//		a particular iteration
 	//
 	//		format:
 	//			<result type="viterbi_iteration" iteration="<< iteration >>">
-	//				<<stateHistogramResultsString>>
-	//				<<segmentHistogramResultsString>>
+	//				<<geneHistogramResultsString>>
 	//				<<probabiltiesResultsString>>
 	//			</result>
-	string resultsWithoutSegments();
+	string resultsWithoutGenes();
 
 	// string allResults()
 	//  Purpose:
@@ -77,11 +84,10 @@ public:
 	//
 	//		format:
 	//			<result type="viterbi_iteration" iteration="<< iteration >>">
-	//				<<stateHistogramResultsString>>
-	//				<<segmentHistogramResultsString>>
+	//				<<geneHistogramResultsString>>
 	//				<<probabiltiesResultsString>>
 	//			</result>
-	//			<<segmentResultsString>>
+	//			<<geneResultsString>>
 	string allResults();
 
 	// calculateProbabilities(HMMProbabilities* previousProbs)
@@ -113,15 +119,15 @@ private:
 	//			</result>
 	string stateHistogramResultsString();
 
-	// string segmentHistogramResultsString()
-	//  Purpose:
-	//		Returns a string representing the segment histogram
-	//
-	//		format:
-	//			<result type="segment_histogram">
-	//				<<state>>=<<segment count>>,
-	//			</result>
-	string segmentHistogramResultsString();
+// string geneHistogramResultsString()
+//  Purpose:
+//		Returns a string representing the gene histogram
+//
+//		format:
+//			<result type="segment_histogram">
+//				<<strand>>=<<gene count>>,
+//			</result>
+string HMMViterbiResults::geneHistogramResultsString();
 
 	// string probabilitiesResultsString()
 	//  Purpose:
@@ -136,15 +142,15 @@ private:
 	//			...
 	string probabilitiesResultsString();
 
-	// string segmentResultsString()
+	// string geneResultsString()
 	//  Purpose:
-	//		Returns a string representing the segments
+	//		Returns a string representing the genes
 	//
 	//		format:
-	//			<result type="segments">
-	//				(segment1start, segment1end),(segment2start, segment2end),...
+	//			<result type="genes">
+	//				(gene1start, gene1end, strand),(gene2start, gene2end, strand),...
 	//			</result>
-	string segmentResultsString();
+	string geneResultsString();
 
 	// string statesResultsString()
 	//  Purpose:

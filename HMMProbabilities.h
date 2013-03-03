@@ -17,16 +17,43 @@
 #include <string>
 using namespace std;
 
+// Create the trinucleotide enum
+/*
+enum class trinucleotide{
+	AAA, AAC, AAT, AAG,
+	ACA, ACC, ACT, ACG,
+	AGA, AGC, AGT, AGG,
+	ATA, ATC, ATT, ATG,
+	CAA, CAC, CAT, CAG,
+	CCA, CCC, CCT, CCG,
+	CGA, CGC, CGT, CGG,
+	CTA, CTC, CTT, CTG,
+	GAA, GAC, GAT, GAG,
+	GCA, GCC, GCT, GCG,
+	GGA, GGC, GGT, GGG,
+	GTA, GTC, GTT, GTG,
+	TAA, TAC, TAT, TAG,
+	TCA, TCC, TCT, TCG,
+	TGA, TGC, TGT, TGG,
+	TTA, TTC, TTT, TTG
+};
+*/
+
 class HMMProbabilities
 {
 public:
 	// Constuctors
 	// ==============================================
 	HMMProbabilities();
+	HMMProbabilities(int numOfStates);
 
 	// Destructor
 	// =============================================
 	~HMMProbabilities();
+
+	// Public Attributes
+	// =============================================
+	map<string, int> emissionResidueMap;
 
 	// Public Class Methods
 	// =============================================
@@ -37,20 +64,13 @@ public:
 	//		probabilites required by genome540 homework #5	
 	static HMMProbabilities* initialProbabilities();
 
-	// HMMProbabilities* testProbabilities()
-	//  Purpose: 
-	//		Returns a probabilites object initialzed to the probabilites
-	//		required by the viterbi toy example
-	//			homepages.ulb.ac.be/~dgonze/TEACHING/viterbi.pdf
-	static HMMProbabilities* testProbabilities();
-
 	// Public Methods
 	// =============================================
 
-	// double emissionProbability(int state, char residue)
+	// double emissionProbability(int state, string residue)
 	//  Purpose: 
 	//		Returns the emission probability for the state and residue
-	long  double emissionProbability(int state, char residue);
+	long  double emissionProbability(int state, string residue);
 
 	// double initiationProbability(int state)
 	//  Purpose: 
@@ -63,10 +83,10 @@ public:
 	//		to endState
 	long  double transitionProbability(int beginState, int endState);
 
-	// double logEmissionProbability(int state, char residue)
+	// double logEmissionProbability(int state, string residue)
 	//  Purpose: 
 	//		Returns the log of the emission probability for the state and residue
-	long  double logEmissionProbability(int state, char residue);
+	long  double logEmissionProbability(int state, string residue);
 
 	// double logInitiationProbability(int state)
 	//  Purpose: 
@@ -85,7 +105,7 @@ public:
 	//	Postconditions:
 	//		emissionProbabilites - value set for state/residue
 	//		logEmissionProbabilites - value set for state/residue
-	void setEmissionProbability(int state, char residue, long double value);
+	void setEmissionProbability(int state, string residue, long double value);
 
 	// setInitiationProbability(int state, double value)
 	//  Purpose: 
@@ -161,12 +181,17 @@ private:
 
 	// Private Attributes
 	// =============================================
-	map<int, map<char, long double>> emissionProbabilities;
-	map<int, map<char, long double>> logEmissionProbabilities;
-	long double transitionProbabilities[2][2];
-	long double logTransitionProbabilities[2][2];
-	long double initiationProbabilities[2];
-	long double logInitiationProbabilities[2];
+	int numStates;
+	map<int, map<int, long double>> emissionProbabilities;
+	map<int, map<int, long double>> logEmissionProbabilities;
+	long double transitionProbabilities[12][12];
+	long double logTransitionProbabilities[12][12];
+	long double initiationProbabilities[12];
+	long double logInitiationProbabilities[12];
+
+	// Private Methods
+	void createEmissionResidueMap();
+	int getEmissionResidueIndex(string residue);
 
 };
 

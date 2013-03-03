@@ -14,9 +14,9 @@ HMMPosition::HMMPosition() {
 	nodes.push_back(startNode);
 }
 
-HMMPosition::HMMPosition(int anId, char residue, int numStates, HiddenMarkovModel* model) {
+HMMPosition::HMMPosition(int anId, string residue, int numStates, HiddenMarkovModel* model) {
 	id = anId;
-	for (int state = 0; state < numStates; state++) {
+	for (int state = 1; state < numStates; state++) {
 		HMMNode* node = new HMMNode(anId, state, residue, model);
 		nodes.push_back(node);
 	}

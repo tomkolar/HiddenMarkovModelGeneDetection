@@ -24,17 +24,13 @@
 #include "HiddenMarkovModel.h"
 #include "HMMProbabilities.h"
 
-// const variable initialization
-// ==============================================
-const char HMMNode::startNodeChar = '&';
-
 // Constuctors
 // ==============================================
 HMMNode::HMMNode(){
 	// Initialize as start node
 	id = 0;
-	state = -1;
-	residue = startNodeChar;
+	state = 0;
+	residue = "";
 	highestWeight = 0; // set to zero only on start node
 	highestWeightPreviousNode = NULL;
 	logForwardProbability = 0;
@@ -42,7 +38,7 @@ HMMNode::HMMNode(){
 	logConditionalProbability = 0;
 }
 
-HMMNode::HMMNode(int anId, int aState, char aResidue, HiddenMarkovModel* aModel) {
+HMMNode::HMMNode(int anId, int aState, string aResidue, HiddenMarkovModel* aModel) {
 	id = anId;
 	state = aState;
 	residue = aResidue;

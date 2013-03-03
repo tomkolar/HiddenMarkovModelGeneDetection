@@ -38,7 +38,7 @@ HMMTransition::~HMMTransition() {
 //		Returns the log of the transition probability for transitioning
 //		from the startNode to the endNode
 long double HMMTransition::logProbability() {
-	if (startNode->residue == HMMNode::startNodeChar)
+	if (startNode->state == 0)
 		return model->probabilities->logInitiationProbability(endNode->state);
 	else
 		return model->probabilities->logTransitionProbability(startNode->state, endNode->state);

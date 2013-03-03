@@ -34,6 +34,7 @@ int main( int argc, char *argv[] ) {
 */
 	// Set Fasta File names
 	string fastaFileName = "c:/Users/kolart/Documents/Genome540/Assignment6/shigella_short.fna";
+	int numIterations = 1;
 
 	// Create the fasta file object
 	FastaFile* fastaFile = new FastaFile(fastaFileName);
@@ -43,6 +44,8 @@ int main( int argc, char *argv[] ) {
 
 	// Create the Hidden Markov Model
 	HiddenMarkovModel hmm(fastaFile);
-	hmm.baumWelchTraining();
+	hmm.viterbiTraining(numIterations);
 
+	cout << hmm.viterbiResultsString();
+	cout << "Fred";
 }

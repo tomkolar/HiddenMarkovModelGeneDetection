@@ -25,6 +25,7 @@
 #define HMMNODE_H
 #include <vector>
 #include <map>
+#include <string>
 using namespace std;
 
 class HMMTransition;
@@ -36,7 +37,7 @@ public:
 	// Constuctors
 	// ==============================================
 	HMMNode();
-	HMMNode(int anId, int aState, char aResidue, HiddenMarkovModel* aModel);
+	HMMNode(int anId, int aState, string aResidue, HiddenMarkovModel* aModel);
 
 	// Destructor
 	// =============================================
@@ -46,7 +47,7 @@ public:
 	// =============================================
 	int id;
 	int state;
-	char residue;
+	string residue;
 	vector<HMMTransition*> inTransitions;
 	vector<HMMTransition*> outTransitions;
 	double highestWeight;
@@ -55,7 +56,6 @@ public:
 	long double logBackwardProbability;
 	long double logConditionalProbability;
 	HiddenMarkovModel* model;
-	static const char startNodeChar;
 
 	// Public Methods
 	// =============================================

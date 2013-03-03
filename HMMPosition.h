@@ -23,7 +23,7 @@ public:
 	// Constuctors
 	// ==============================================
 	HMMPosition();
-	HMMPosition(int anId, char residue, int numStates, HiddenMarkovModel* model);
+	HMMPosition(int anId, string residue, int numStates, HiddenMarkovModel* model);
 
 	// Destructor
 	// =============================================

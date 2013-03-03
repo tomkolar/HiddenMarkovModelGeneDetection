@@ -74,7 +74,7 @@
 
 // const variable initialization
 // ==============================================
-const int HiddenMarkovModel::numStates = 2;
+const int HiddenMarkovModel::numStates = 12;
 
 // Constuctors
 // ==============================================
@@ -238,7 +238,7 @@ string HiddenMarkovModel::pathStatesResultsString() {
 
 	HMMPosition* lastPosition = model.back();
 	HMMNode* aNode = lastPosition->highestScoringNode();
-	while (aNode->residue != HMMNode::startNodeChar) {
+	while (aNode->state != 0) {
 		ss << aNode->state;
 		aNode = aNode->highestWeightPreviousNode;
 	}
@@ -267,7 +267,7 @@ string HiddenMarkovModel::viterbiResultsString() {
 	int numResults = viterbiResults.size();
 	for (int i = 0; i < numResults; i++) {
 		if (i < numResults -1)
-			ss << viterbiResults[i]->resultsWithoutSegments();
+			ss << viterbiResults[i]->resultsWithoutGenes();
 		else
 			ss << viterbiResults[i]->allResults();
 	}
@@ -323,9 +323,9 @@ void HiddenMarkovModel::buildAndCalculateModel(bool calculateForward) {
 		// Iterate through the sequence and create model on the fly
 		HMMPosition* previousPosition = startPosition;
 		int seqLength = sequence.length();
-		for (int seqPos = 0; seqPos < seqLength; seqPos++) {
+		for (int seqPos = 0; seqPos <= seqLength -3; seqPos++) {
 			// Create a Position object with one node for each state
-			HMMPosition* aPosition = new HMMPosition(seqPos + 1, sequence.at(seqPos), numStates, this);
+			HMMPosition* aPosition = new HMMPosition(seqPos + 1, sequence.substr(seqPos, 3), numStates, this);
 
 			// Create the incoming transitions for the curent position
 			createTransitionsFor(aPosition, previousPosition);
@@ -397,7 +397,7 @@ void HiddenMarkovModel::calculateLogConditionalProbabilities() {
 }
 
 void HiddenMarkovModel::calculateBaumWelchEmissionProbabilities() {
-
+/*
 	// Create and initialize vectors to track the numerator and denominator
 	// calculating the probabilities
 	vector<map<char, long double>> numerators;
@@ -452,6 +452,7 @@ void HiddenMarkovModel::calculateBaumWelchEmissionProbabilities() {
 			probabilities->setEmissionProbability(state, residue, newEmissionProbability);
 		}
 	}
+*/
 }
 
 void HiddenMarkovModel::calculateBaumWelchInitiationProbabilities(){
@@ -572,12 +573,16 @@ void HiddenMarkovModel::calculateHighestWeightPath(HMMPosition* aPosition) {
 		for (HMMTransition* transition : positionNode->inTransitions) {
 			// calculate the score
 			long double score = 
-				 transition->startNode->highestWeight  // previous nodes weight
-			   + transition->logProbability()          // transition probability 
-			   + positionNode->logEmissionProbability(); // emission probablity
+				MathUtilities::elnprod(
+					transition->startNode->highestWeight,  // previous nodes weight
+					MathUtilities::elnprod(
+						transition->logProbability(),          // transition probability 
+						positionNode->logEmissionProbability() // emission probablity
+					)
+				);
 
 			// Replace the highest weight info if this path has the highest score
-			if (score > positionNode->highestWeight) {
+			if (!MathUtilities::isNaN(score) && (score > positionNode->highestWeight)) {
 				positionNode->highestWeight = score;
 				positionNode->highestWeightPreviousNode = transition->startNode;
 			}
@@ -616,27 +621,53 @@ HMMViterbiResults* HiddenMarkovModel::gatherViterbiResults(int iteration) {
 
 	// Walk the path backward and gather the data
 	int previousState = -1; 
-	pair<int, int> currentSegment = pair<int,int>(-1,-1);
-	while (aNode->residue != HMMNode::startNodeChar) {
+	HMMViterbiResults::Gene* currentGene;
+	bool currentlyIntergenic = true;
+
+	while (aNode->state != 0) {
 		int currentState = aNode->state;
 		
 		// Update number of occurrences for a state
 		results->stateCounts[currentState]++;
 
+		// Update emission count for state
+		results->emissionCounts.at(currentState).at(aNode->residue)++;
+
 		// Update segment info
-		if (currentState != previousState) {
-			// Set the start of the segment
-			currentSegment.first = aNode->id + 1;
+		if (currentlyIntergenic) {
+			// We are walking the path backward so
+			// Check for top strand stop codon or bottom strand star codon
+			if (currentState == 5 || currentState == 7) {
+				// Now intra geneic
+				currentlyIntergenic = false;
 
-			// Add segment to segments map (except for first time through)
-			if (currentSegment.second != -1) 
-				results->segments[previousState].push_back(currentSegment);
+				// Create a new gene
+				currentGene = new HMMViterbiResults::Gene();
+				currentGene->end = aNode->id +1;
 
-			// Create new segment
-			currentSegment = pair<int,int>(aNode->id, aNode->id);
+				if (currentState == 5) {
+					currentGene->isTopStrand = true;
+					results->topStrandGeneCount++;
+				}
+				else {
+					currentGene->isTopStrand = false;
+					results->bottomStrandGeneCount++;
+				}
+			}
+		}
+		else {  // Currently inside of a gene
+			// Check for top strand start codon or bottom strand stop codon
+			if ((currentGene->isTopStrand && currentState == 1)
+				|| (!currentGene->isTopStrand &&  currentState == 11)) {
 
-			// Update number of segments for a state
-			results->segmentCounts[currentState]++;
+				// Now inter geneic
+				currentlyIntergenic = true;
+
+				// Add gene to genes collection
+				currentGene->start = aNode->id + 1;
+				results->genes.push_back(currentGene);
+				currentGene = NULL;
+			}
 		}
 
 		// Update transition counts
@@ -649,9 +680,9 @@ HMMViterbiResults* HiddenMarkovModel::gatherViterbiResults(int iteration) {
 		aNode = aNode->highestWeightPreviousNode;
 	}
 
-	// Add the last segment to the collection
-	currentSegment.first =  1;
-	results->segments[previousState].push_back(currentSegment);
+	if (!currentlyIntergenic) {
+		throw out_of_range("Sequence should not end inside of a gene!");
+	}
 
 	// Calculate the probabilities
 	results->calculateProbabilities(probabilities);
