@@ -71,6 +71,7 @@
 #include <cfloat>
 #include <iostream>
 #include <limits>
+#include <stdexcept> 
 
 // const variable initialization
 // ==============================================
@@ -643,7 +644,7 @@ HMMViterbiResults* HiddenMarkovModel::gatherViterbiResults(int iteration) {
 
 				// Create a new gene
 				currentGene = new HMMViterbiResults::Gene();
-				currentGene->end = aNode->id +1;
+				currentGene->end = aNode->id + 2;
 
 				if (currentState == 5) {
 					currentGene->isTopStrand = true;
@@ -664,7 +665,7 @@ HMMViterbiResults* HiddenMarkovModel::gatherViterbiResults(int iteration) {
 				currentlyIntergenic = true;
 
 				// Add gene to genes collection
-				currentGene->start = aNode->id + 1;
+				currentGene->start = aNode->id;
 				results->genes.push_back(currentGene);
 				currentGene = NULL;
 			}

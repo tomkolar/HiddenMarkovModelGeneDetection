@@ -85,6 +85,9 @@ string HMMViterbiResults::resultsWithoutGenes() {
 	ss 
 		<< geneHistogramResultsString()
 		<< probabilitiesResultsString();
+	
+	// For verification
+//	ss << shortGeneResultsString();
 
 	// Footer
 	ss << "    </result>\n";
@@ -241,6 +244,39 @@ string HMMViterbiResults::geneResultsString() {
 		counter++;
 		if (counter % 5 == 0)
 			ss << "\n";
+	}
+
+	return StringUtilities::xmlResult("gene_list", ss.str());
+}
+
+// string shortGeneResultsString()
+//  Purpose:
+//		Returns a string representing the genes
+//
+//		format:
+//			<result type="genes">
+//				(gene1start, gene1end, strand),(gene2start, gene2end, strand),...
+//			</result>
+string HMMViterbiResults::shortGeneResultsString() {
+	stringstream ss;
+	
+	int counter = 0;
+
+	vector<Gene*>::reverse_iterator rit;
+	for (rit = genes.rbegin(); rit!= genes.rend(); rit++) {
+		Gene* gene = *rit;
+		ss 
+			<< "("
+			<< gene->start
+			<< ","
+			<< gene->end
+			<< ","
+			<< (gene->isTopStrand?"top":"bottom")
+			<< "),";
+
+		counter++;
+		if (counter % 5 == 0)
+			break;
 	}
 
 	return StringUtilities::xmlResult("gene_list", ss.str());

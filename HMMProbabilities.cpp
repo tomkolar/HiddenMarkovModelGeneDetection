@@ -14,6 +14,7 @@
 #include <cmath>
 #include <sstream>
 #include <string>
+#include <limits>
 
 // Constuctors
 // ==============================================
@@ -25,9 +26,9 @@ HMMProbabilities::HMMProbabilities(int numOfStates) {
 	createEmissionResidueMap();
 
 	// Initialize all probabilities to zero
-	for (int i = 0; i <= numStates; i++) {
+	for (int i = 0; i < numStates; i++) {
 		setInitiationProbability(i, 0);
-		for (int j = 0; j <= numStates; j++) {
+		for (int j = 0; j < numStates; j++) {
 			setTransitionProbability(i, j, 0);
 		}
 		for (pair<string, int> mapPair : emissionResidueMap) {
@@ -64,8 +65,8 @@ HMMProbabilities* HMMProbabilities::initialProbabilities() {
 	probs->setTransitionProbability(4, 2, 0.99);
 	probs->setTransitionProbability(4, 5, 0.01);
 	probs->setTransitionProbability(5, 6, 1.0);
-	probs->setTransitionProbability(6, 1, 0.8);
-	probs->setTransitionProbability(6, 6, 0.1);
+	probs->setTransitionProbability(6, 1, 0.1);
+	probs->setTransitionProbability(6, 6, 0.8);
 	probs->setTransitionProbability(6, 11, 0.1);
 	probs->setTransitionProbability(7, 6, 1.0);
 	probs->setTransitionProbability(8, 9, 1.0);
@@ -362,7 +363,7 @@ string HMMProbabilities::transitionProbablitiesResultsString(int state) {
 	ss.precision(5);
 
 	// Header 
-	ss << "        <transition_probabilities state=\"" << state + 1 << "\">";
+	ss << "        <transition_probabilities state=\"" << state << "\">";
 
 	// States
 	for (int i = 1; i < numStates; i++) {
@@ -394,7 +395,7 @@ string HMMProbabilities::emissionProbablitiesResultsString(int state) {
 	ss.precision(5);
 
 	// Header 
-	ss << "        <emission_probabilities state=\"" << state + 1 << "\">";
+	ss << "        <emission_probabilities state=\"" << state << "\">";
 
 	// Residues
 	for (pair<string, int> mapPair : emissionResidueMap) {

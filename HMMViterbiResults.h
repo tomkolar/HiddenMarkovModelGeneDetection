@@ -127,7 +127,7 @@ private:
 //			<result type="segment_histogram">
 //				<<strand>>=<<gene count>>,
 //			</result>
-string HMMViterbiResults::geneHistogramResultsString();
+string geneHistogramResultsString();
 
 	// string probabilitiesResultsString()
 	//  Purpose:
@@ -151,6 +151,9 @@ string HMMViterbiResults::geneHistogramResultsString();
 	//				(gene1start, gene1end, strand),(gene2start, gene2end, strand),...
 	//			</result>
 	string geneResultsString();
+	string shortGeneResultsString();
+
+
 
 	// string statesResultsString()
 	//  Purpose:
